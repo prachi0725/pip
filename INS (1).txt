@@ -1,0 +1,756 @@
+                                                                 *Prac 1*
+AIM : write prog to implement ceaser cipher technique
+
+code:
+
+def encryption(pt,key):
+    list1='abcdefghijklmnopqrstuvwxyz'
+    en=""
+    for i in pt.lower():
+        k=(list1.index(i)+key)%26
+        en+=list1[k] 
+    print('Encrypted text: ',en)
+pt=input("Enter plain text: ")
+key=int(input("Enter key: "))
+encryption(pt,key)    
+
+
+#Decryption
+def decryption(pt,key):
+    list1='abcdefghijklmnopqrstuvwxyz'
+    de=""
+    for i in pt.lower():
+        k=(list1.index(i)-key)%26
+        de+=list1[k]
+    print('Decrypted text: ',de)
+pt=input("Enter plain text: ")
+key=int(input("Enter key: "))
+decryption(pt,key)    
+
+o/p:
+Enter plain text: Diksha
+Enter key: 3
+Encrypted text:  glnvkd
+Enter plain text: glnvkd
+Enter key: 3
+Decrypted text:  diksha
+
+
+                                                                *Prac 2*
+
+Aim: write prog to implement the following substitution techniques 
+
+1.Playfair Cipher
+
+code:
+
+from re import findall
+
+# Alphabet array including 'j'
+array = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+
+def datalist_normal(key):
+    key = key.replace(" ", "").lower()
+    list1 = []
+    for char in key:
+        if char not in list1:
+            list1.append('j' if char == 'i' else char)
+    for char in array:
+        if char not in list1:
+            list1.append(char)
+    return list1
+
+def matrix(list1):
+    m = []
+    index = 0
+    for i in range(5):
+        a = []
+        for j in range(5):
+            a.append(list1[index])
+            index += 1
+        m.append(a)
+    print("Matrix:")
+    for row in m:
+        print(" ".join(row))
+    return m
+
+def plain(text):
+    text = text.replace(" ", "").lower()
+    p = []
+    for char in text:
+        if char == 'i':
+            p.append('j')
+        else:
+            p.append(char)
+    for i in range(0, len(p), 2):
+        if i < len(p) - 1 and p[i] == p[i + 1]:
+            p.insert(i + 1, 'x')
+    if len(p) % 2 != 0:
+        p.append('x')
+    return p
+
+def enc(p, m):
+    encr = ""
+    for i in range(0, len(p), 2):
+        a = b = c = d = -1
+        for j in range(5):
+            for k in range(5):
+                if p[i] == m[j][k]:
+                    a, b = j, k
+                if p[i + 1] == m[j][k]:
+                    c, d = j, k
+        if a == c:
+            encr += m[a][(b + 1) % 5] + m[c][(d + 1) % 5]
+        elif b == d:
+            encr += m[(a + 1) % 5][b] + m[(c + 1) % 5][d]
+        else:
+            encr += m[a][d] + m[c][b]
+    return encr
+
+def dec(p, m):
+    decr = ""
+    for i in range(0, len(p), 2):
+        a = b = c = d = -1
+        for j in range(5):
+            for k in range(5):
+                if p[i] == m[j][k]:
+                    a, b = j, k
+                if p[i + 1] == m[j][k]:
+                    c, d = j, k
+        if a == c:
+            decr += m[a][(b - 1) % 5] + m[c][(d - 1) % 5]
+        elif b == d:
+            decr += m[(a - 1) % 5][b] + m[(c - 1) % 5][d]
+        else:
+            decr += m[a][d] + m[c][b]
+    # Replace 'j' with 'i' in the decrypted text
+    decr = decr.replace('j', 'i')
+    return decr
+
+def playfair_cipher():
+    key = input("Enter key: ")
+    text = input("Enter text: ")
+    list1 = datalist_normal(key)
+    print("Datalist:", list1)
+    matrix1 = matrix(list1)
+    plaintext = plain(text)
+    print("Plaintext:", plaintext)
+    encrypt = enc(plaintext, matrix1)
+    print("Encrypted:", encrypt)
+    decrypt = dec(encrypt, matrix1)
+    print("Decrypted:", decrypt)
+
+# Run the Playfair Cipher
+playfair_cipher()
+
+o/p:
+Enter key: keyword
+Enter text: Diksha
+Datalist: ['k', 'e', 'y', 'w', 'o', 'r', 'd', 'a', 'b', 'c', 'f', 'g', 'h', 'i', 'j', 'l', 'm', 'n', 'p', 'q', 's', 't', 'u', 'v', 'x', 'z']
+Matrix:
+k e y w o
+r d a b c
+f g h i j
+l m n p q
+s t u v x
+Plaintext: ['d', 'j', 'k', 's', 'h', 'a']
+Encrypted: cgrknh
+Decrypted: diksha
+
+2.vernam cipher
+
+code:
+def ver(pt,key):
+    pt=pt.replace(" "," ")
+    al='abcdefghijklmnopqrstuvwxyz'
+    en=''
+    de=''
+    i=0
+    j=0
+    n=0
+    a=[]
+    b=[]
+    for x in range(0,len(pt)):
+        a.append(0)
+        b.append(0)
+    for l1 in pt.lower():
+        a[i]=al.index(l1)
+        i+=1
+    for l2 in key.lower():
+        b[j]=al.index(l2)
+        j+=1
+    for k in range(0,len(pt)):
+        s1=(a[k]+b[k])%26
+        en+=al[s1]
+    print("Encrypted text is: ",en)
+    for k in range(0,len(pt)):
+        n=n+1
+        s2=al.index(en[k])-al.index(key[n-1])
+        de=de+al[s2%26]
+    print("Decrypted text: ",de)
+pt=input("Enter Plain Text : ")
+key=input("Enter a key of same no of letters as that of plain text : ")
+ver(pt,key)
+
+o/p:
+Enter Plain Text : diksha
+Enter a key of same no of letters as that of plain text : keywor
+Encrypted text is:  nmiovr
+Decrypted text:  diksha
+
+3.vignere cipher
+
+code:
+import math
+l="abcdefghijklmnopqrstuvwxyz"
+pt=input("Enter plain text: ")
+pt=pt.replace("","")
+lenk=int(input("Enter length of key: "))
+k=[]
+for i in range(0,lenk):
+    v=int(input("Enter key"+str(i+1)+": "))
+    k.append(v)
+en=""
+de=""
+n=0
+for i in range(0,len(pt)):
+    if(n<len(k)):
+        n=n+1
+    if(n>=len(k)):
+        n=0
+    ind=l.index(pt[i])+k[n-1]
+    en=en+l[ind%26]
+n=0
+print("Encrypted text: ",en)
+for i in range(0,len(pt)):
+    if(n<len(k)):
+        n=n+1
+    if(n>=len(k)):
+        n=0
+    ind=l.index(en[i])-k[n-1]
+    de=de+l[ind%26]
+
+print("Decrypted text: ",de)
+
+o/p:
+Enter plain text: diksha
+Enter length of key: 3
+Enter key1: 2
+Enter key2: 3
+Enter key3: 4
+Encrypted text:  flouke
+Decrypted text:  diksha
+
+                                                                *Prac 3*
+
+Aim: Write prog to implement the following transposition cipher techniques
+
+1.rail fence cipher
+
+code:
+def rf(pt):
+    pt=pt.replace("","")
+    u=""
+    l=""
+    en=""
+    de=""
+    j=len(pt)//2
+    for i in range(0,len(pt)):
+        if(i%2==0):
+            u+=pt[i]
+        else:
+            l+=pt[i]
+    en=u+l
+    print("Encrypted Text is: ",en)
+    if(len(pt)%2==0):
+        for i in range(0,j):
+            de+=u[i]
+            de+=l[i]
+        print("Decrypted Text :",de)
+    else:
+        for i in range(0,j):
+            de+=u[i]
+            de+=l[i]
+        de+=u[-1]
+        print("Decrypted Text :",de)
+pt=input("Enter a PlainText: ")
+                
+rf(pt)
+
+o/p:
+Enter a PlainText: diksha
+Encrypted Text is:  dkhisa
+Decrypted Text : diksha
+
+2.simple columnar technique
+
+code:
+def plaintext(text, key):
+    text = text.lower()
+    text = text.replace(" ", "")
+    while len(text) % len(key) != 0:
+        text += "x"
+    return text
+
+def keyList(key):
+    return list(key)
+
+def matrix_encrypt(text, list1):
+    m = []
+    index = 0
+    for i in range(len(text) // len(list1)):
+        a = []
+        for j in range(len(list1)):
+            if index < len(text):
+                a.append(text[index])
+                index += 1
+        m.append(a)
+    print("Matrix: ")
+    for i in range(len(text) // len(list1)):
+        for j in range(len(list1)):
+            print(m[i][j], end=" ")
+        print()
+    return m
+
+def encrypt(m, list1, list2, text):
+    en = ""
+    row = len(text) // len(list1)
+    sorted_key = sorted(list2)
+    for k in range(len(sorted_key)):
+        num = list1.index(sorted_key[k])
+        for i in range(row):
+            en += m[i][num]
+    print("Cipher text: ", en)
+    return en
+
+def encryptionAlgo(text, key):
+    plain_text = plaintext(text, key)
+    key_list1 = keyList(key)
+    key_list2 = keyList(key)
+    print("Plain text:", plain_text)
+    print("Key list:", key_list1)
+    m_plain = matrix_encrypt(plain_text, key_list1)
+    cipher = encrypt(m_plain, key_list1, key_list2, plain_text)
+    return cipher
+
+def matrix_list(cipher, list1):
+    sorted_key = sorted(list1)
+    var = len(cipher) // len(list1)
+    mat_list = [''] * len(cipher)
+    index = 0
+    for k in range(len(sorted_key)):
+        num = list1.index(sorted_key[k])
+        for i in range(var):
+            mat_list[num + i * len(list1)] = cipher[index]
+            index += 1
+    print("List of matrix characters: ", mat_list)
+    return mat_list
+
+def matrix_decrypt(mat_list, list1):
+    m = []
+    for i in range(len(list1)):
+        a = []
+        for j in range(len(mat_list) // len(list1)):
+            a.append(mat_list[i + j * len(list1)])
+        m.append(a)
+    print("Columnwise groups of matrix characters: ", m)
+    print("Matrix: ")
+    for i in range(len(mat_list) // len(list1)):
+        for j in range(len(list1)):
+            print(m[j][i], end=" ")
+        print()
+    return m
+
+def decryption(m, mat_list, list1):
+    de = ""
+    row = len(mat_list) // len(list1)
+    for i in range(row):
+        for j in range(len(list1)):
+            de += m[j][i]
+    print("Plain text: ", de)
+    return de
+
+def decryptionAlgo(cipher, key):
+    list1 = keyList(key)
+    mat_list = matrix_list(cipher, list1)
+    m = matrix_decrypt(mat_list, list1)
+    plain = decryption(m, mat_list, list1)
+    return plain
+
+text = input("Enter plaintext: ")
+key = input("Enter key: ")
+print("Encryption goes here!!!")
+cipher = encryptionAlgo(text, key)
+print("Decryption goes here!!!")
+plain = decryptionAlgo(cipher, key)
+
+o/p:
+Enter plaintext: diksha
+Enter key: keyword
+Encryption goes here!!!
+Plain text: dikshax
+Key list: ['k', 'e', 'y', 'w', 'o', 'r', 'd']
+Matrix: 
+d i k s h a x 
+Cipher text:  xidhask
+Decryption goes here!!!
+List of matrix characters:  ['d', 'i', 'k', 's', 'h', 'a', 'x']
+Columnwise groups of matrix characters:  [['d'], ['i'], ['k'], ['s'], ['h'], ['a'], ['x']]
+Matrix: 
+d i k s h a x 
+Plain text:  dikshax
+
+*Prac 4*
+Aim: write prog to encrypt and decrypt strings using
+
+1.AES algorithm
+
+in cmd: 1)pip install pyDes 2)aes_cipher
+        
+code:
+from pyDes import *
+from aes_cipher import *
+def aes():
+    
+    data=input("Enter a string : ")
+    data_encrypter=DataEncrypter()
+    data_encrypter.Encrypt(data,"test_pwd")
+    enc_data=data_encrypter.GetEncryptedData()
+    print("Encrypted Data :",enc_data)
+    data_decrypter=DataDecrypter()
+    data_decrypter.Decrypt(enc_data, "test_pwd")
+    dec_data = data_decrypter.GetDecryptedData()
+    print("Decrypted Data :",dec_data)
+aes()
+
+o/p:
+Enter a string : Diksha
+Encrypted Data : b'\x00\x00\x00\x10\xe0\xd4\x80^n\x1eTM)\xaa+uf\xbb\xb7dUq\xbc\x802II\xdbj\xe5\xe4\xa1\xef\xff\xd5\xa9P\xb6\x98N\x7ft\xe1\x11.\xfa\x80\x15;\xd9\xe9L!\xeb\xf9x\x87#m\x9a\xa5~\x86\xe0\xbb\x90\xa9\x14\xbbnli\x0b\xcc\xc5m\x84\xf2\xab\xee{\x0e\\\x132\xca_\xffV\x1cEB\xdd\x01\x18\x17\xe6\xba\x9e\xefL&\xc5
+
+2.DES
+
+code:
+from pyDes import *
+data = input("Enter data :")
+k = des("DESCRYPT", CBC, "\0\0\0\0\0\0\0\0", pad = None, padmode = PAD_PKCS5)
+d = k.encrypt(data)
+print("Encrypted:%r"%d)
+print("Decrypted:%r"%k.decrypt(d))
+
+o/p:
+Enter data :Diksha
+Encrypted:b'\xc5\xcaLa\x97\xb5\x98\xdc'
+Decrypted:b'Diksha'
+
+3.RC4
+
+code:
+from Crypto.Cipher import ARC4
+pt = bytes(input("Enter plain Text: "), 'utf-8')
+key = bytes(input("Enter Key: "), 'utf-8')
+arc4 = ARC4.new(key)
+cipher = arc4.encrypt(pt)
+print("Encrypted text: ", cipher)
+arc4 = ARC4.new(key)
+decipher = arc4.decrypt(cipher)
+print("Decrypted text: ", decipher.decode())
+
+
+o/p:
+Enter plain Text: Diksha
+Enter Key: 4
+Encrypted text:  b'\x0c\xb6\x9f{\xed\x8a'
+Decrypted text:  Diksha
+
+*Prac 5*
+Aim: write prog to encrypt and decrypt using RSA algorithm
+
+code:
+import math
+# Function to check if a number is prime
+def is_prime(num):
+    if num <= 1:
+        return False
+    for i in range(2, int(math.sqrt(num)) + 1):
+        if num % i == 0:
+            return False
+    return True
+# RC4-like encryption function (actually RSA encryption in the code)
+def rc4(p, q, m):
+    if not is_prime(p) or not is_prime(q):
+        raise Exception("One or both of the numbers are not prime.")
+    if m >= p * q:
+        raise Exception("Plaintext must be less than the product of p and q.")
+    
+    n = p * q
+    phi = (p - 1) * (q - 1)
+    # Find e such that 1 < e < phi and gcd(e, phi) == 1
+    e = 2
+    while e < phi:
+        if math.gcd(e, phi) == 1:
+            break
+        e += 1
+    # Find d such that (d * e) % phi == 1
+    d = 2
+    while (d * e) % phi != 1:
+        d += 1
+    # Encryption
+    ct = pow(m, e, n)
+    print("Ciphertext is:", ct)
+    # Decryption
+    pt = pow(ct, d, n)
+    print("Plaintext is:", pt)
+# Main program
+try:
+    p = int(input("Enter the 1st prime number: "))
+    q = int(input("Enter the 2nd prime number: "))
+    m = int(input("Enter the plaintext (must be less than the product of both prime numbers): "))
+    
+    rc4(p, q, m)
+
+except ValueError:
+    print("Invalid input. Please enter integer values.")
+except Exception as e:
+    print(e)
+
+o/p:
+Enter the 1st prime number: 3
+Enter the 2nd prime number: 5
+Enter the plaintext (must be less than the product of both prime numbers): 7
+Ciphertext is: 13
+Plaintext is: 7
+
+*Prac 6*
+Aim: write prog to implement Diffie hellman key algorithm to generate symmentric keys.
+
+in cmd: pip install sympy
+
+code:
+from sympy import isprime, primitive_root
+def diffie_hellman(q, x_a, x_b):
+ if not isprime(q):
+     raise Exception("Enter a prime number.")
+ if not x_a < q:
+     raise Exception(f"Enter x_a: {x_a} less than q: {q}")
+ if not x_b < q:
+     raise Exception(f"Enter x_b: {x_b} less than q: {q}")
+ prim_root = primitive_root(q)
+ print(f"Primitive root of {q} is {prim_root}")
+ y_a = (prim_root**x_a) % q
+ y_b = (prim_root**x_b) % q
+ sender_key = (y_b**x_a) % q
+ receiver_key = (y_a**x_b) % q
+ return sender_key, receiver_key
+q = int(input("Enter a prime number: "))
+x_a = int(input("Enter value of x_a: "))
+x_b = int(input("Enter value of x_b: "))
+sk, rk = diffie_hellman(q, x_a, x_b)
+print(f"The sender's key is {sk} and the receiver's key is {rk}")
+
+o/p:
+Enter a prime number: 11
+Enter value of x_a: 8
+Enter value of x_b: 4
+Primitive root of 11 is 2
+The sender's key is 4 and the receiver's key is 4
+
+*Prac 7*
+Aim: write prog to implement following cryptographic hash methods.
+
+1.MD5
+
+hello.txt (txt file)
+101001011 (txt file)
+
+code:
+#WAP to implement MD5 to generate message digest from file and for password
+import hashlib
+def file_check(filename):
+    hash1 = hashlib.md5()
+    with open(filename,'rb') as open_file:
+        content = open_file.read()
+        hash1.update(content)
+    print(hash1.hexdigest())
+
+def pass_check(pw):
+    hash1 = hashlib.md5(pw.encode('utf-8'))
+    print("Your MD5 password is ", hash1.hexdigest())
+
+while True:
+    choice = int(input("""Choose an option:
+1. Hash From File
+2. Hash User Input
+3. Exit
+"""))
+    if choice == 1:
+        filename = input("Enter file name: ")
+        file_check(filename)
+    elif choice == 2:
+        pw = input("Enter your password: ")
+        pass_check(pw)
+    elif choice == 3:
+        print("Program finished.")
+        break
+    else:
+        print("Invalid choice")
+
+o/p:
+Choose an option:
+1. Hash From File
+2. Hash User Input
+3. Exit
+1
+Enter file name: hello.txt
+5d41402abc4b2a76b9719d911017c592
+Choose an option:
+1. Hash From File
+2. Hash User Input
+3. Exit
+2
+Enter your password: admin@123
+Your MD5 password is  e6e061838856bf47e1de730719fb2609
+Choose an option:
+1. Hash From File
+2. Hash User Input
+3. Exit
+3
+Program finished.
+
+2.HMAC SHA1
+
+code:
+import hashlib
+
+def sha(m):
+    hash1=hashlib.sha1(m.encode())
+    print("SHA-1 signature of your message is:",hash1.hexdigest())
+pt=input("Enter message:")
+sha(pt)
+
+o/p:
+Enter message:Mulund College of Commerce
+SHA-1 signature of your message is: 6d1d2e40af03ca1a389ac70ca8a3204bc7cb1b44
+
+
+Practical 8
+
+AIM:
+
+CODE:
+
+from sympy import primitive_root,mod_inverse
+from hashlib import sha256
+def hash_message(msg):
+    h=sha256(msg.encode()).hexdigest()
+    return int(h,16)
+p=int(input("Enter a prime number p: "))
+x=int(input(f"Enter a private key x (1<x<{p-1}): "))
+g=primitive_root(p)
+print(f"Using the primitive root g={g} ")
+
+y=pow(g,x,p) 
+print(f"Public Key: (p={p},g={g},y={y})")
+print(f"Private Key: x={x}")
+
+msg=input("Enter the message to sign: ")
+m=hash_message(msg)%(p-1)
+
+while True:
+    k=int(input(f"Enter the random integer k (1<k<{p-1} and gcd(k,{p-1})=1):"))
+    if mod_inverse(k,p-1) is not None:
+        break
+
+s1=pow(g,k,p)
+k_inv=mod_inverse(k,p-1)
+s2=(k_inv * (m-x*s1))%(p-1)
+sign=(s1,s2)
+print(f"Signature: s1={s1} , s2={s2}")
+
+v1=pow(g,m,p)
+v2=(pow(y,s1,p)* pow(s1,s2,p))%p
+
+print(f"v1={v1} and v2={v2}")
+if v1==v2:
+    print("Signature is valid.")
+else:
+    print("Signature is invalid.")
+
+
+OUTPUT:
+
+Enter a prime number p: 7
+Enter a private key x (1<x<6): 5
+Using the primitive root g=3 
+Public Key: (p=7,g=3,y=5)
+Private Key: x=5
+Enter the message to sign: Elgamal
+Enter the random integer k (1<k<6 and gcd(k,6)=1):5
+Signature: s1=5 , s2=0
+v1=3 and v2=3
+Signature is valid.
+
+
+Practical No - 9
+
+AIM: Configure Windows Firewall to block:
+
+1) A Port
+2) A Program
+3) A Website
+
+1) A Port
+Step 1: Open Control Panel.
+Step 2: Go To Firewall in Search Box.
+Step 3: In the Windows Firewall, Click on advanced setting and then click on Inbound Rule.
+Step 4: Go to New Rule in Right Hand Side Of The Window.
+Step 5: Select Port and then select TCP and select Specific Local Ports and enter the Port Number, which you want to block(Eg:80)
+Step 6: Click Next till the last Dialog Box appears, and Name the New Inbound Rule as you wish and Click on Finish:
+
+2) A Program:
+Step 1: Open Control Panel.
+Step 2: Go To Firewall in Search Box.
+Step 3: In the Windows Firewall, Click on advanced setting and then click on Outbound Rule.
+Step 4: Go to New Rule in Right Hand Side Of The Window.
+Step 5: Select Program then, Select This Program Path then, browse the files which you want to block.
+Step 6: Click Next till the last Dialog Box appears, and Name the New Outbound Rule as you wish and Click on Finish:
+ 
+3) A Website:
+Step 1: Open Control Panel.
+Step 2: Go To Firewall in Search Box.
+Step 3: In the Windows Firewall, Click on advanced setting and then click on Outbound Rule.
+Step 4: Go to New Rule in Right Hand Side Of The Window.
+Step 5: Select Custom.
+Step 6: Select All programs.
+Step 7: Select Any, then select “These IP Address” then Click on Add and enter IP Address and click on OK.
+Step 8: Click on Next Until Naming Box Appears and Name it as you wish, and click on Finish.
+
+ 
+                                                        PRACTICAL 10
+
+AIM: Write a program to implement SSL.
+
+CODE:
+
+import socket
+import ssl
+hostname="www.python.org"
+port=443
+context=ssl.create_default_context()
+with socket.create_connection((hostname,port))as sock:
+    with context.wrap_socket(sock,server_hostname=hostname) as ssock:
+        print(f"SSL protocol version:{ssock.version()}")
+
+        req=f"GET/HTTP/1.1\r\nHost:{hostname}\r\n\r\n"
+        ssock.send(req.encode())
+
+        res=ssock.recv(4096).decode()
+
+        print("response from the server:")
+        print(res)
+        ssock.close()
+
+OUTPUT:
+AUTOMATIC OUTPUT COMES
+
+
+
